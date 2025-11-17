@@ -1,0 +1,945 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  color: white;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#gameCanvas {
+  display: block;
+  background: linear-gradient(180deg, #0a1128 0%, #1a1a2e 50%, #2d1b3d 100%);
+  transition: transform 0.1s;
+}
+
+/* Control Buttons */
+
+#pauseButton,
+#soundButton {
+  position: fixed;
+  top: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  color: #ffd93d;
+  padding: 12px 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  z-index: 200;
+  transition: all 0.3s;
+}
+
+#pauseButton {
+  right: 20px;
+}
+
+#soundButton {
+  right: 180px;
+}
+
+#pauseButton:hover,
+#soundButton:hover {
+  background: rgba(255, 107, 107, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+#soundButton.muted {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.6);
+}
+
+/* Shop Button & Gold Container in Start Screen */
+
+#startScreen > div[style*="top: 20px; right: 20px;"] {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 300;
+  /* ανεβάζουμε το layer πάνω απ' όλα */
+}
+
+#startScreen .shop-gold {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  border-radius: 15px;
+  padding: 10px 18px;
+  z-index: 301;
+  /* λίγο πάνω από το κουμπί */
+  position: relative;
+  margin-right: 10px;
+  /* το πιο σημαντικό: πάει πιο αριστερά */
+}
+
+#shopButton {
+  position: relative;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  color: #ffd93d;
+  padding: 12px 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  z-index: 300;
+  transition: all 0.3s;
+}
+
+#shopButton:hover {
+  background: rgba(255, 107, 107, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+/* Start Screen */
+
+#startScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.5s;
+}
+
+#startScreen.hidden {
+  display: none;
+}
+
+.game-title {
+  font-size: 4rem;
+  background: linear-gradient(45deg, #ff6b6b, #ffd93d, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+  animation: pulse 2s infinite;
+}
+
+.mode-selection {
+  display: flex;
+  gap: 30px;
+  margin: 40px 0;
+}
+
+.mode-card {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 217, 61, 0.2));
+  border: 2px solid #ff6b6b;
+  border-radius: 15px;
+  padding: 30px;
+  width: 250px;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.mode-card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 10px 40px rgba(255, 107, 107, 0.6);
+  border-color: #ffd93d;
+}
+
+.mode-card h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #ffd93d;
+}
+
+.mode-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+/* Customization */
+
+.customization-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.customization-option input,
+.customization-option select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #ff6b6b;
+  border-radius: 5px;
+  color: white;
+  padding: 5px;
+}
+
+/* HUD - ΔΙΟΡΘΩΜΕΝΟ */
+
+#hud {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  z-index: 100;
+  pointer-events: none;
+  padding: 0 20px;
+}
+
+.hud-left {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 15px 25px;
+  border-radius: 15px;
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  margin-left: -10px;
+  transform: translateX(-10px);
+}
+
+.hud-right {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 15px 25px;
+  border-radius: 15px;
+  border: 2px solid rgba(255, 107, 107, 0.3);
+}
+
+.hud-stat {
+  margin: 5px 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-label {
+  color: #ffd93d;
+  font-weight: bold;
+}
+
+.stat-value {
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+.health-bar-container {
+  width: 200px;
+  height: 25px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  overflow: hidden;
+  border: 2px solid #ff6b6b;
+}
+
+.health-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff0000, #ff6b6b, #ff8e8e);
+  transition: width 0.3s;
+  box-shadow: 0 0 10px #ff6b6b;
+}
+
+/* Notifications */
+
+#comboDisplay {
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  font-size: 2rem;
+  color: #ffd93d;
+  text-shadow: 0 0 20px #ff6b6b;
+  z-index: 150;
+  display: none;
+  animation: comboShake 0.3s;
+}
+
+#levelDisplay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  color: #ffd93d;
+  text-shadow: 0 0 30px #ff6b6b;
+  z-index: 500;
+  display: none;
+  animation: levelAnnounce 2s;
+}
+
+#healNotification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  color: #00ff00;
+  text-shadow: 0 0 20px #00ff00;
+  z-index: 150;
+  display: none;
+  animation: healPulse 1s;
+}
+
+#achievementNotification {
+  position: fixed;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 215, 0, 0.95);
+  color: #000;
+  padding: 20px 40px;
+  border-radius: 15px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  z-index: 600;
+  display: none;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+  animation: achievementPop 3s;
+}
+
+/* Shop Menu - ΒΕΛΤΙΩΜΕΝΟ */
+
+#shopMenu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.98);
+  padding: 40px;
+  border-radius: 20px;
+  border: 3px solid #ff6b6b;
+  z-index: 1000;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: none;
+  box-shadow: 0 0 50px rgba(255, 107, 107, 0.5);
+}
+
+#shopMenu.show {
+  display: block;
+}
+
+.shop-title {
+  font-size: 2.5rem;
+  color: #ffd93d;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.shop-categories {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.shop-category {
+  background: rgba(255, 107, 107, 0.1);
+  border: 2px solid #ff6b6b;
+  border-radius: 10px;
+  padding: 15px 25px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1.1rem;
+  color: #ffd93d;
+}
+
+.shop-category.active {
+  background: rgba(255, 107, 107, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+}
+
+.shop-category:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.shop-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.shop-item {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #ff6b6b;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.shop-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+.shop-item.equipped {
+  border-color: #ffd93d;
+  background: rgba(255, 217, 61, 0.1);
+  box-shadow: 0 0 15px rgba(255, 217, 61, 0.4);
+}
+
+.shop-item-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.shop-item-name {
+  font-size: 1.2rem;
+  color: #ffd93d;
+  margin-bottom: 10px;
+}
+
+.shop-item-price {
+  font-size: 1.1rem;
+  color: #ff6b6b;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.shop-item-owned {
+  font-size: 0.9rem;
+  color: #ffd93d;
+  margin-top: 5px;
+}
+
+/* Coin Icon */
+
+.coin-icon {
+  width: 24px;
+  height: 24px;
+  background: radial-gradient(circle at 30% 30%, #ffd700, #ffa500);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: inline-block;
+}
+
+.coin-icon::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  background: radial-gradient(circle at 40% 40%, #ffed4e, #ffd700);
+  border-radius: 50%;
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.5);
+}
+
+.coin-icon::after {
+  content: "₪";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #8b7500;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.coin-icon.small {
+  width: 16px;
+  height: 16px;
+}
+
+.coin-icon.small::after {
+  font-size: 8px;
+}
+
+/* Shop Gold in Menu */
+
+.shop-gold {
+  text-align: center;
+  font-size: 1.3rem;
+  color: #ffd93d;
+  margin-bottom: 20px;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 2px solid #ff6b6b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.shop-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* Skill Tree */
+
+#skillTreeMenu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  border: 3px solid #ff6b6b;
+  z-index: 1000;
+  max-width: 600px;
+}
+
+.skill-tree {
+  display: flex;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.skill-branch {
+  flex: 1;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ff6b6b;
+}
+
+.skill-branch h3 {
+  color: #ffd93d;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.skill {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  justify-content: space-between;
+}
+
+.skill:hover {
+  background: rgba(255, 107, 107, 0.3);
+  transform: scale(1.05);
+}
+
+.skill.purchased {
+  background: rgba(0, 255, 0, 0.2);
+  border: 1px solid #00ff00;
+}
+
+.skill-cost {
+  color: #ffd93d;
+  font-weight: bold;
+}
+
+/* Pause Menu */
+
+#pauseMenu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  border: 3px solid #ff6b6b;
+  display: none;
+  z-index: 900;
+}
+
+#pauseMenu.show {
+  display: block;
+}
+
+.pause-title {
+  font-size: 2.5rem;
+  color: #ffd93d;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.pause-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Game Over Screen */
+
+#gameOverScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+#gameOverScreen.show {
+  display: flex;
+}
+
+.game-over-title {
+  font-size: 3.5rem;
+  color: #ff6b6b;
+  margin-bottom: 30px;
+  text-shadow: 0 0 20px #ff0000;
+}
+
+.final-stats {
+  background: rgba(255, 107, 107, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  border: 2px solid #ff6b6b;
+  margin-bottom: 30px;
+}
+
+.final-stat {
+  font-size: 1.5rem;
+  margin: 10px 0;
+  color: #ffd93d;
+}
+
+/* Leaderboard */
+
+.leaderboard {
+  background: rgba(255, 215, 0, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid #ffd700;
+  min-width: 400px;
+}
+
+#leaderboardList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.leaderboard-entry {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 1.2rem;
+}
+
+.leaderboard-entry.current {
+  background: rgba(255, 215, 0, 0.2);
+  border: 2px solid #ffd700;
+}
+
+.leaderboard-rank {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.leaderboard-score {
+  color: #fff;
+}
+
+/* Home Base */
+
+#homeBase {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.home-base-content {
+  background: rgba(255, 107, 107, 0.1);
+  padding: 40px;
+  border-radius: 20px;
+  border: 3px solid #ff6b6b;
+  text-align: center;
+}
+
+.base-stats {
+  margin: 20px 0;
+  font-size: 1.2rem;
+}
+
+.base-stats div {
+  margin: 10px 0;
+  color: #ffd93d;
+}
+
+/* Buttons */
+
+.game-button {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  border: none;
+  color: white;
+  padding: 15px 40px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.game-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+}
+
+/* Animations */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes levelAnnounce {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes comboShake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes healPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes achievementPop {
+  0% {
+    transform: translateX(-50%) translateY(-50px);
+    opacity: 0;
+  }
+  10% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50px);
+    opacity: 0;
+  }
+}
+
+/* Dragon Accessories - CSS Graphics - ΜΟΝΟ ΓΥΑΛΙΑ */
+
+.dragon-accessory {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+  transform-origin: center;
+}
+
+/* Sunglasses */
+
+.sunglasses-icon {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sunglasses-icon::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  width: 25px;
+  height: 20px;
+  background: linear-gradient(135deg, #000, #1a1a1a);
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.sunglasses-icon::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  width: 25px;
+  height: 20px;
+  background: linear-gradient(135deg, #000, #1a1a1a);
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Nerd Glasses */
+
+.nerd-glasses-icon {
+  background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nerd-glasses-icon::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: 15px;
+  width: 20px;
+  height: 20px;
+  background: rgba(200, 220, 255, 0.3);
+  border: 3px solid #000;
+  border-radius: 50%;
+}
+
+.nerd-glasses-icon::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  right: 15px;
+  width: 20px;
+  height: 20px;
+  background: rgba(200, 220, 255, 0.3);
+  border: 3px solid #000;
+  border-radius: 50%;
+}
+
+/* VR Glasses */
+
+.vr-glasses-icon {
+  background: linear-gradient(135deg, #333, #555);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vr-glasses-icon::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  width: 25px;
+  height: 20px;
+  background: linear-gradient(135deg, #0066ff, #00ccff);
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0, 150, 255, 0.8);
+  animation: vrGlow 2s infinite;
+}
+
+.vr-glasses-icon::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  width: 25px;
+  height: 20px;
+  background: linear-gradient(135deg, #0066ff, #00ccff);
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0, 150, 255, 0.8);
+  animation: vrGlow 2s infinite;
+}
+
+/* Dragon Accessories on Dragon */
+
+.dragon-glasses {
+  position: absolute;
+  width: 50px;
+  height: 20px;
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border-radius: 10px;
+  transform-origin: center;
+  z-index: 51;
+}
+
+@keyframes vrGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(0, 150, 255, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 150, 255, 1);
+  }
+}
