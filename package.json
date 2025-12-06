@@ -1,0 +1,10 @@
+{
+  "name": "dragon-game",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "serve . -p 10000"
+  },
+  "dependencies": {
+    "serve": "^14.0.0"
+  }
+}
